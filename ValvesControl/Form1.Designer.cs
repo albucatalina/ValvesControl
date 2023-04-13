@@ -36,6 +36,7 @@ namespace ValvesControl
             this.hystoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.testsHystoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.button2 = new System.Windows.Forms.Button();
@@ -50,8 +51,9 @@ namespace ValvesControl
             this.voltageLabel = new System.Windows.Forms.Label();
             this.currentTextBox = new System.Windows.Forms.TextBox();
             this.voltagTtextBox = new System.Windows.Forms.TextBox();
-            this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.consoleTextBox = new System.Windows.Forms.TextBox();
+            this.testButton = new System.Windows.Forms.Button();
+            this.testTextBox = new System.Windows.Forms.TextBox();
             this.menuStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
@@ -113,6 +115,12 @@ namespace ValvesControl
             // 
             this.testsHystoryToolStripMenuItem.Name = "testsHystoryToolStripMenuItem";
             this.testsHystoryToolStripMenuItem.Size = new System.Drawing.Size(14, 24);
+            // 
+            // viewToolStripMenuItem
+            // 
+            this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
+            this.viewToolStripMenuItem.Size = new System.Drawing.Size(55, 24);
+            this.viewToolStripMenuItem.Text = "View";
             // 
             // button1
             // 
@@ -256,12 +264,6 @@ namespace ValvesControl
             this.voltagTtextBox.TabIndex = 0;
             this.voltagTtextBox.Text = "+0.00";
             // 
-            // viewToolStripMenuItem
-            // 
-            this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
-            this.viewToolStripMenuItem.Size = new System.Drawing.Size(55, 24);
-            this.viewToolStripMenuItem.Text = "View";
-            // 
             // consoleTextBox
             // 
             this.consoleTextBox.Location = new System.Drawing.Point(16, 348);
@@ -272,12 +274,32 @@ namespace ValvesControl
             this.consoleTextBox.Size = new System.Drawing.Size(645, 120);
             this.consoleTextBox.TabIndex = 8;
             // 
+            // testButton
+            // 
+            this.testButton.Location = new System.Drawing.Point(442, 247);
+            this.testButton.Name = "testButton";
+            this.testButton.Size = new System.Drawing.Size(145, 36);
+            this.testButton.TabIndex = 9;
+            this.testButton.Text = "Send to Arduino";
+            this.testButton.UseVisualStyleBackColor = true;
+            this.testButton.Click += new System.EventHandler(this.testButton_Click);
+            // 
+            // testTextBox
+            // 
+            this.testTextBox.Location = new System.Drawing.Point(312, 247);
+            this.testTextBox.Multiline = true;
+            this.testTextBox.Name = "testTextBox";
+            this.testTextBox.Size = new System.Drawing.Size(115, 36);
+            this.testTextBox.TabIndex = 10;
+            // 
             // ValvesControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Beige;
             this.ClientSize = new System.Drawing.Size(693, 528);
+            this.Controls.Add(this.testTextBox);
+            this.Controls.Add(this.testButton);
             this.Controls.Add(this.consoleTextBox);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -288,6 +310,7 @@ namespace ValvesControl
             this.Name = "ValvesControl";
             this.RightToLeftLayout = true;
             this.Text = "Valves control";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ValvesControl_FormClosed);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.groupBox1.ResumeLayout(false);
@@ -324,6 +347,8 @@ namespace ValvesControl
         private System.Windows.Forms.ToolStripMenuItem hystoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
         private System.Windows.Forms.TextBox consoleTextBox;
+        private System.Windows.Forms.Button testButton;
+        private System.Windows.Forms.TextBox testTextBox;
     }
 }
 
