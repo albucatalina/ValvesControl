@@ -1,0 +1,3 @@
+AS RL$Short to battery$1000
+AS RL$Short to ground$1000
+AS FL$Short to battery$2000
