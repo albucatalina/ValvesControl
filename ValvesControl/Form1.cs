@@ -13,11 +13,10 @@ using System.IO;
 
 public struct Test
 {
-    public string valve;
+    public string valveName;
     public string shortCircuitType;
     public int time;
 }
-
 
 namespace ValvesControl
 {
@@ -28,10 +27,10 @@ namespace ValvesControl
         
         ExecutingTestSequence executingTestSequenceForm;
 
-        string dataGridViewValveColumnName = "Valve";
-        string dataGridViewShortTypeColumnName = "Short Type";
-        string dataGridViewTimeColumnName = "Time [ms]";
-        string dataGridViewRunTestColumnName = "Run";
+        readonly string dataGridViewValveColumnName = "Valve";
+        readonly string dataGridViewShortTypeColumnName = "Short Type";
+        readonly string dataGridViewTimeColumnName = "Time [ms]";
+        readonly string dataGridViewRunTestColumnName = "Run";
 
         readonly List<string> valveNames;
         readonly List<string> shortCircuitTypes;
@@ -48,12 +47,19 @@ namespace ValvesControl
 
             DataGridViewConfiguration();
 
-            if (portTextBox.Text == "")
+            if (toolStripStatusLabel1.Text == "")
             {
                 toolStripStatusLabel1.Text = "Not connected. Please select a port to connect automatically";
                 statusStrip1.BackColor = Color.Yellow;
             }
 
+            if(valveNames.Count() > 0)
+            {
+                valve1GroupBox.Text = valveNames[1];
+                valve2GroupBox.Text = valveNames[2];
+                valve3GroupBox.Text = valveNames[3];
+                valve4GroupBox.Text = valveNames[4];
+            }
         }
 
         private void GetDataGridViewInformationFromFile()
@@ -98,42 +104,43 @@ namespace ValvesControl
         private void PortClickEvent(object sender, EventArgs e)
         {
             portName = (sender as ToolStripMenuItem).Text;
-            portTextBox.Text = portName;
-            toolStripStatusLabel1.Text = "Connected";
-            statusStrip1.BackColor = Color.Green;
             try
             {
                 serialPort = new SerialPort(portName, 9600, Parity.None, 8, StopBits.One);
                 serialPort.Open();
                 serialPort.DiscardInBuffer();
                 serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+                toolStripStatusLabel1.Text = "Connected     Port: " + portName;
+                statusStrip1.BackColor = Color.Green;
             }
             catch (Exception)
             {
                 toolStripStatusLabel1.Text = "Connection Failed";
                 statusStrip1.BackColor = Color.Red;
             }
-
         }
 
         private void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
         {
             SerialPort serialPort = (SerialPort)sender;
-            MethodInvoker methodInvoker;
             string response = serialPort.ReadLine();
             if (response != "")
             {
-                if (response.Contains("executing"))
+                if (response.StartsWith("executing"))
                 {
                     Test test = GetTestFromExecutingMessage(response.Substring(response.IndexOf('$') + 1));
+                    this.BeginInvoke(new Action(() => consoleTextBox.Text += "Executing command: " + 
+                        test.shortCircuitType + " to " + test.valveName + " for " + test.time + 
+                        " miliseconds" + Environment.NewLine));
                     executingTestSequenceForm.ShowTestCommand(test);
                 }
-                if (response.Contains("done"))
+                if (response.StartsWith("done"))
                 {
                     executingTestSequenceForm.TestSequenceDone();
+                    this.BeginInvoke(new Action(() => consoleTextBox.Text += "Command executed successfully!" 
+                        + Environment.NewLine));
                 }
-                
-                if (response.Contains("current"))
+                if (response.StartsWith("current"))
                 {
                     int index = response.IndexOf("$");
                     response = response.Substring(index + 1);
@@ -142,7 +149,7 @@ namespace ValvesControl
                     string value = response.Substring(index + 1);
                     ShowCurrentValue(valveId, value);
                 }
-                if (response.Contains("voltage"))
+                if (response.StartsWith("voltage"))
                 {
                     int index = response.IndexOf("$");
                     response = response.Substring(index + 1);
@@ -151,8 +158,11 @@ namespace ValvesControl
                     string value = response.Substring(index + 1);
                     ShowVoltageValue(valveId, value);
                 }
-                methodInvoker = new MethodInvoker(() => consoleTextBox.Text += "Arduino response: " + response + Environment.NewLine);
-                consoleTextBox.Invoke(methodInvoker);
+                if (response.StartsWith("error"))
+                {
+                    this.BeginInvoke(new Action(() => consoleLabel.Text += 
+                        response.Substring(response.IndexOf('$') + 1) + Environment.NewLine));
+                }
                 Console.WriteLine("Arduino response: " + response);
             }
         }
@@ -178,21 +188,21 @@ namespace ValvesControl
             }
         }
 
-        private void ShowVoltageValue(int valveId, string volatgeValue)
+        private void ShowVoltageValue(int valveId, string voltageValue)
         {
             switch (valveId)
             {
                 case 1:
-                    this.BeginInvoke(new Action(() => valve1VoltageTextBox.Text = volatgeValue + "V"));
+                    this.BeginInvoke(new Action(() => valve1VoltageTextBox.Text = voltageValue + "V"));
                     break;
                 case 2:
-                    this.BeginInvoke(new Action(() => valve2VoltageTextBox.Text = volatgeValue + "V"));
+                    this.BeginInvoke(new Action(() => valve2VoltageTextBox.Text = voltageValue + "V"));
                     break;
                 case 3:
-                    this.BeginInvoke(new Action(() => valve3VoltageTextBox.Text = volatgeValue + "V"));
+                    this.BeginInvoke(new Action(() => valve3VoltageTextBox.Text = voltageValue + "V"));
                     break;
                 case 4:
-                    this.BeginInvoke(new Action(() => valve4VoltageTextBox.Text = volatgeValue + "V"));
+                    this.BeginInvoke(new Action(() => valve4VoltageTextBox.Text = voltageValue + "V"));
                     break;
                 default:
                     break;
@@ -204,7 +214,7 @@ namespace ValvesControl
             Test test;
             int index = response.IndexOf('$');
             int valveId = int.Parse(response.Substring(0, index));
-            test.valve = valveNames[valveId];
+            test.valveName = valveNames[valveId];
 
             response = response.Substring(index + 1);
             index = response.IndexOf('$');
@@ -213,7 +223,8 @@ namespace ValvesControl
 
             test.time = int.Parse(response.Substring(index + 1));
 
-            Console.WriteLine(test.valve + "-" + test.shortCircuitType + "-" + test.time);
+           // this.BeginInvoke(new Action(() => consoleTextBox.Text += test.valveName + "-" + test.shortCircuitType + "-" + test.time + Environment.NewLine));
+            Console.WriteLine(test.valveName + "-" + test.shortCircuitType + "-" + test.time);
 
             return test;
         }
@@ -228,7 +239,8 @@ namespace ValvesControl
             valveComboBoxColumn.Name = dataGridViewValveColumnName;
             valveComboBoxColumn.HeaderText = dataGridViewValveColumnName;
             dataGridViewTestConfig.Columns.Add(valveComboBoxColumn);
-            dataGridViewTestConfig.Rows[0].Cells[dataGridViewValveColumnName].Value = ((DataGridViewComboBoxCell)dataGridViewTestConfig.Rows[0].Cells[dataGridViewValveColumnName]).Items[0];
+            dataGridViewTestConfig.Rows[0].Cells[dataGridViewValveColumnName].Value = 
+                ((DataGridViewComboBoxCell)dataGridViewTestConfig.Rows[0].Cells[dataGridViewValveColumnName]).Items[0];
 
             DataGridViewComboBoxColumn shortTypeComboBoxColumn = new DataGridViewComboBoxColumn();
             shortTypeComboBoxColumn.DataSource = shortCircuitTypes;
@@ -252,18 +264,15 @@ namespace ValvesControl
             runTestButtonColumn.HeaderText = dataGridViewRunTestColumnName;
             dataGridViewTestConfig.Columns.Add(runTestButtonColumn);
 
-
         }
-
 
         private void ValvesControl_FormClosed(object sender, FormClosedEventArgs e)
         {
-            if (portTextBox.Text != "")
+            if (toolStripStatusLabel1.Text.Contains("Connected"))
                 serialPort.Close();
-            
         }
 
-        private void cleanConsoleButton_Click(object sender, EventArgs e)
+        private void clearConsoleButton_Click(object sender, EventArgs e)
         {
             consoleTextBox.Clear();
         }
@@ -274,19 +283,15 @@ namespace ValvesControl
 
             if (senderGrid.Columns[e.ColumnIndex] is DataGridViewButtonColumn && e.RowIndex >= 0)
             {
-                if (portTextBox.Text != "")
+                if (toolStripStatusLabel1.Text.Contains("Connected"))
                 {
                     if (IsDataGridViewRowValid(dataGridViewTestConfig.Rows[e.RowIndex]))
                     {
                         
                         Test test = GetTestFromDataGridViewRow(dataGridViewTestConfig.Rows[e.RowIndex]);
-                        //consoleTextBox.Text += "Short type - " + test.shortCircuitType + ": Valva " + test.valve + " a fost selectata cu timpul " + test.time + Environment.NewLine;
                         SendMessageToArduino(test);
-
                         executingTestSequenceForm = new ExecutingTestSequence(serialPort);
-                        executingTestSequenceForm.Show();
-
-                        
+                        executingTestSequenceForm.Show();                        
                     }
                     else
                         MessageBox.Show("Some values are incorrect!");
@@ -298,11 +303,10 @@ namespace ValvesControl
 
         private void SendMessageToArduino(Test test)
         {
-            serialPort.DiscardOutBuffer();
-            int valveId = valveNames.FindIndex(name => name == test.valve);
+            int valveId = valveNames.FindIndex(name => name == test.valveName);
             int shortCircuitTypeId = shortCircuitTypes.FindIndex(shortType => shortType == test.shortCircuitType);
             int time = test.time;
-            serialPort.Write("test$" + valveId + "$" + shortCircuitTypeId + "$" + time);
+            serialPort.WriteLine("test$" + valveId + "$" + shortCircuitTypeId + "$" + time);
         }
 
         private void SendMessageToArduino(List<Test> testSequence, int repetitions)
@@ -311,18 +315,16 @@ namespace ValvesControl
             int valveId, shortCircuitTypeId, time;
             foreach (Test test in testSequence)
             {
-                valveId = valveNames.FindIndex(name => name == test.valve);
+                valveId = valveNames.FindIndex(name => name == test.valveName);
                 shortCircuitTypeId = shortCircuitTypes.FindIndex(shortType => shortType == test.shortCircuitType);
                 time = test.time;
                 messageToSend += "<" + valveId + "$" + shortCircuitTypeId + "$" + time + ">";
             }
-            // consoleTextBox.Text += "trimis:" + messageToSend + Environment.NewLine;
-            serialPort.Write(messageToSend); //!!!!!!!!!!!!!!!!!!!!!!!!!!!! nush dc trb write nu writeline....
+            serialPort.WriteLine(messageToSend);
         }
 
         private void dataGridViewTestConfig_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
         {
-
             if (e.RowIndex != 0)
             {
                 {
@@ -342,7 +344,6 @@ namespace ValvesControl
                         textBoxCell.Value = 0;
                     }
                 }
-
             }
         }
 
@@ -370,19 +371,16 @@ namespace ValvesControl
 
         private void StartTestButton_Click(object sender, EventArgs e)
         {
-            if (portTextBox.Text != "") //functie port available /connection ok
+            if (toolStripStatusLabel1.Text.Contains("Connected"))
             {
                 if (AreDataGridViewAllRowsValid())
                 {
                     List<Test> tests = new List<Test>();
                     Test test;
-                    //string testSequence = "testSequence$" + repeatNumericUpDown.Value;
                     for (int i = 0; i < dataGridViewTestConfig.RowCount - 1; i++)
                     {
-
                         test = GetTestFromDataGridViewRow(dataGridViewTestConfig.Rows[i]);
                         tests.Add(test);
-
                     }
                     SendMessageToArduino(tests, (int)repeatNumericUpDown.Value);
 
@@ -395,16 +393,13 @@ namespace ValvesControl
             }
             else
                 MessageBox.Show("Please select a port from menu");
-
-
         }
 
         
-
         private Test GetTestFromDataGridViewRow(DataGridViewRow dataGridViewRow)
         {
             Test t;
-            t.valve = dataGridViewRow.Cells[dataGridViewValveColumnName].Value.ToString();
+            t.valveName = dataGridViewRow.Cells[dataGridViewValveColumnName].Value.ToString();
             t.shortCircuitType = dataGridViewRow.Cells[dataGridViewShortTypeColumnName].Value.ToString();
             t.time = int.Parse(dataGridViewRow.Cells[dataGridViewTimeColumnName].Value.ToString());
             return t;
@@ -414,19 +409,11 @@ namespace ValvesControl
         {
             if (dataGridViewTestConfig.Columns[e.ColumnIndex] is DataGridViewTextBoxColumn)
             {
-                if (int.TryParse(e.FormattedValue?.ToString(), out _))
+                if (!int.TryParse(e.FormattedValue?.ToString(), out _))
                 {
-                    // Value is a valid integer
-                }
-                else
-                {
-                    // Value is not a valid integer
                     MessageBox.Show("Please enter a valid integer value");
-
                 }
             }
-
-
         }
 
         private void PortsToolStripMenuItem_MouseEnter(object sender, EventArgs e)
@@ -442,19 +429,19 @@ namespace ValvesControl
                 foreach (string port in availablePorts)
                 {
                     Console.WriteLine(port);
+
                     portsToolStripMenuItem.DropDownItems.Add(port, null, PortClickEvent);
                 }
             }
         }
 
-        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        private void OpenToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
                 Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
                 Title = "Open configuration"
             };
-
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 if (dataGridViewTestConfig.RowCount > 1)
@@ -462,27 +449,30 @@ namespace ValvesControl
 
                 using (StreamReader streamReader = new StreamReader(openFileDialog.FileName))
                 {
-                    string[] lines = streamReader.ReadToEnd().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+                    string[] lines = streamReader.ReadToEnd()
+                        .Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+
                     for (int i = 0; i < lines.Length - 1; i++)
                         dataGridViewTestConfig.Rows.Add();
                     for (int i = 0; i < dataGridViewTestConfig.RowCount - 1; i++)
                     {
                         Test test;
                         string[] lineSplit = lines[i].Split('$');
-                        test.valve = lineSplit[0];
+                        test.valveName = lineSplit[0];
                         test.shortCircuitType = lineSplit[1];
                         test.time = int.Parse(lineSplit[2]);
 
-                        dataGridViewTestConfig.Rows[i].Cells[dataGridViewValveColumnName].Value = valveNames.Find(s => s == test.valve);
-                        dataGridViewTestConfig.Rows[i].Cells[dataGridViewShortTypeColumnName].Value = shortCircuitTypes.Find(s => s == test.shortCircuitType);
+                        dataGridViewTestConfig.Rows[i].Cells[dataGridViewValveColumnName].Value = 
+                            valveNames.Find(s => s == test.valveName);
+                        dataGridViewTestConfig.Rows[i].Cells[dataGridViewShortTypeColumnName].Value =
+                            shortCircuitTypes.Find(s => s == test.shortCircuitType);
                         dataGridViewTestConfig.Rows[i].Cells[dataGridViewTimeColumnName].Value = test.time;
                     }
-
                 }
             }
         }
 
-        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (AreDataGridViewAllRowsValid())
             {
@@ -502,7 +492,7 @@ namespace ValvesControl
                         for (int i = 0; i < dataGridViewTestConfig.RowCount - 1; i++)
                         {
                             test = GetTestFromDataGridViewRow(dataGridViewTestConfig.Rows[i]);
-                            streamWriter.WriteLine(test.valve + "$" + test.shortCircuitType + "$" + test.time);
+                            streamWriter.WriteLine(test.valveName + "$" + test.shortCircuitType + "$" + test.time);
                         }
                     }
 
@@ -510,6 +500,16 @@ namespace ValvesControl
             }
             else
                 MessageBox.Show("Some values are incorrect!");
+        }
+
+        private void startTestButton_MouseHover(object sender, EventArgs e)
+        {
+            startTestButton.BackColor = Color.PaleTurquoise;
+        }
+
+        private void clearConsoleButton_MouseHover(object sender, EventArgs e)
+        {
+            clearConsoleButton.BackColor = Color.PaleTurquoise;
         }
     }
 }

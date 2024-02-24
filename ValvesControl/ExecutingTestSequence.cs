@@ -17,10 +17,6 @@ namespace ValvesControl
     {
         
         SerialPort serialPort;
-        System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
-        int totalTime = 3000;
-        int interval = 50;
-        int progress =0;
         bool pause = false;
 
         public ExecutingTestSequence(SerialPort serialPort)
@@ -28,57 +24,26 @@ namespace ValvesControl
             InitializeComponent();
             this.serialPort = serialPort;
             closeButton.Hide();
-            timer.Interval = interval;
-            
-           // timer.Tick += new EventHandler(IncreaseProgressBar);
         }
-
-        private void IncreaseProgressBar(object sender, EventArgs e)
-        {
-            this.BeginInvoke(new Action(() => progressBar1.Increment(1)));
-            if(progressBar1.Value == progressBar1.Maximum)
-            {
-                this.BeginInvoke(new Action(() => timer.Stop()));
-
-            }
-           /* progress += interval;
-            //progressBar1.Increment(1);
-            this.BeginInvoke(new Action(() => progressBar1.Value = (int)((progress / (double)totalTime) * progressBar1.Maximum)));
-
-            if (progress > totalTime)
-            {
-                this.BeginInvoke(new Action(() => timer.Stop()));
-                //timer.Stop();
-                //MessageBox.Show("completed");
-            }*/
-           
-        }
-
 
         public void ShowTestCommand(Test test)
         {
             this.BeginInvoke(new Action(() => statusLabel.Text = "Status: Executing"));
-            this.BeginInvoke(new Action(() => commandLabel.Text = "Command: " + test.shortCircuitType + " to " + test.valve + " for " + test.time + " miliseconds"));
+            this.BeginInvoke(new Action(() => commandLabel.Text = "Command: " + test.shortCircuitType
+                + " to " + test.valveName + " for " + test.time + " miliseconds"));
 
-            
-
-            MethodInvoker m = new MethodInvoker(() => progressBar1.Value = 0);
-            progressBar1.Invoke(m);
-
-            
-            m = new MethodInvoker(() => progressBar1.Maximum = test.time);
-            progressBar1.Invoke(m);
+            this.BeginInvoke(new Action(() => progressBar1.Value = 0));
+            this.BeginInvoke(new Action(() => progressBar1.Maximum = test.time));
 
             for (int i = 0; i < progressBar1.Maximum; i += 100)
             {
                 Thread.Sleep(100);
                 while (pause) { }
                 this.BeginInvoke(new Action(() => progressBar1.Value = i));
-                Console.WriteLine(progressBar1.Value);
             }
 
-            m = new MethodInvoker(() => numberOfCommandsExecutedLabel.Text = (int.Parse(numberOfCommandsExecutedLabel.Text) + 1).ToString());
-            numberOfCommandsExecutedLabel.Invoke(m);
+            this.BeginInvoke(new Action(() => numberOfCommandsExecutedLabel.Text = 
+                (int.Parse(numberOfCommandsExecutedLabel.Text) + 1).ToString()));
         }
 
         public void TestSequenceDone()
@@ -90,12 +55,12 @@ namespace ValvesControl
         }
 
         
-        private void closeButton_Click(object sender, EventArgs e)
+        private void CloseButton_Click(object sender, EventArgs e)
         {
             this.Close();
         }
 
-        private void pauseButton_Click(object sender, EventArgs e)
+        private void PauseButton_Click(object sender, EventArgs e)
         {
             if (pauseButton.Text == "Pause")
             {
@@ -114,10 +79,25 @@ namespace ValvesControl
             }
         }
 
-        private void cancelButton_Click(object sender, EventArgs e)
+        private void CancelButton_Click(object sender, EventArgs e)
         {
             serialPort.WriteLine("cancel");
             TestSequenceDone();
+        }
+
+        private void cancelButton_MouseHover(object sender, EventArgs e)
+        {
+            cancelButton.BackColor = Color.PaleTurquoise;
+        }
+
+        private void pauseButton_MouseHover(object sender, EventArgs e)
+        {
+            pauseButton.BackColor = Color.PaleTurquoise;
+        }
+
+        private void closeButton_MouseHover(object sender, EventArgs e)
+        {
+            closeButton.BackColor = Color.PaleTurquoise;
         }
     }
 }

@@ -1,0 +1,11 @@
+C:\Users\Albu Catalina\Desktop\ValvesControl\ValvesControl\bin\Debug\ValvesControl.exe.config
+C:\Users\Albu Catalina\Desktop\ValvesControl\ValvesControl\bin\Debug\ValvesControl.exe
+C:\Users\Albu Catalina\Desktop\ValvesControl\ValvesControl\bin\Debug\ValvesControl.pdb
+C:\Users\Albu Catalina\Desktop\ValvesControl\ValvesControl\obj\Debug\ValvesControl.ValvesControl.resources
+C:\Users\Albu Catalina\Desktop\ValvesControl\ValvesControl\obj\Debug\ValvesControl.Properties.Resources.resources
+C:\Users\Albu Catalina\Desktop\ValvesControl\ValvesControl\obj\Debug\ValvesControl.csproj.GenerateResource.cache
+C:\Users\Albu Catalina\Desktop\ValvesControl\ValvesControl\obj\Debug\ValvesControl.csproj.CoreCompileInputs.cache
+C:\Users\Albu Catalina\Desktop\ValvesControl\ValvesControl\obj\Debug\ValvesControl.exe
+C:\Users\Albu Catalina\Desktop\ValvesControl\ValvesControl\obj\Debug\ValvesControl.pdb
+C:\Users\Albu Catalina\Desktop\ValvesControl\ValvesControl\obj\Debug\ValvesControl.csproj.AssemblyReference.cache
+C:\Users\Albu Catalina\Desktop\ValvesControl\ValvesControl\obj\Debug\ValvesControl.ExecutingTestSequence.resources

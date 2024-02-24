@@ -41,13 +41,16 @@ namespace ValvesControl
             // 
             // cancelButton
             // 
+            this.cancelButton.BackColor = System.Drawing.Color.MediumTurquoise;
+            this.cancelButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cancelButton.Location = new System.Drawing.Point(275, 170);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(81, 29);
             this.cancelButton.TabIndex = 0;
             this.cancelButton.Text = "Cancel";
-            this.cancelButton.UseVisualStyleBackColor = true;
-            this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
+            this.cancelButton.UseVisualStyleBackColor = false;
+            this.cancelButton.Click += new System.EventHandler(this.CancelButton_Click);
+            this.cancelButton.MouseHover += new System.EventHandler(this.cancelButton_MouseHover);
             // 
             // progressBar1
             // 
@@ -79,13 +82,16 @@ namespace ValvesControl
             // 
             // pauseButton
             // 
+            this.pauseButton.BackColor = System.Drawing.Color.MediumTurquoise;
+            this.pauseButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.pauseButton.Location = new System.Drawing.Point(74, 170);
             this.pauseButton.Name = "pauseButton";
             this.pauseButton.Size = new System.Drawing.Size(81, 29);
             this.pauseButton.TabIndex = 4;
             this.pauseButton.Text = "Pause";
-            this.pauseButton.UseVisualStyleBackColor = true;
-            this.pauseButton.Click += new System.EventHandler(this.pauseButton_Click);
+            this.pauseButton.UseVisualStyleBackColor = false;
+            this.pauseButton.Click += new System.EventHandler(this.PauseButton_Click);
+            this.pauseButton.MouseHover += new System.EventHandler(this.pauseButton_MouseHover);
             // 
             // label1
             // 
@@ -107,13 +113,16 @@ namespace ValvesControl
             // 
             // closeButton
             // 
+            this.closeButton.BackColor = System.Drawing.Color.MediumTurquoise;
+            this.closeButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.closeButton.Location = new System.Drawing.Point(179, 170);
             this.closeButton.Name = "closeButton";
             this.closeButton.Size = new System.Drawing.Size(81, 29);
             this.closeButton.TabIndex = 7;
             this.closeButton.Text = "Close";
-            this.closeButton.UseVisualStyleBackColor = true;
-            this.closeButton.Click += new System.EventHandler(this.closeButton_Click);
+            this.closeButton.UseVisualStyleBackColor = false;
+            this.closeButton.Click += new System.EventHandler(this.CloseButton_Click);
+            this.closeButton.MouseHover += new System.EventHandler(this.closeButton_MouseHover);
             // 
             // ExecutingTestSequence
             // 
